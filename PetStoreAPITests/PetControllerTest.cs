@@ -4,6 +4,7 @@ using NUnit.Framework;
 using PetStoreAPI;
 using PetStoreAPI.Controllers;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,6 +21,18 @@ namespace PetStoreAPITests
         public void Setup()
         {
             _petService = new PetService();
+        }
+        
+        [Test]
+        public async Task UploadImageToAPetByID_ReturnTrue()
+        {            
+            var status = "available,pending,sold";
+            var resultStatus = await _petService.GetByStatus(status);
+            List<Pet> pet = JsonConvert.DeserializeObject<List<Pet>>(resultStatus.Content);
+            var file = File.ReadAllBytes("Resources\\Image\\dog.jpg");
+
+            var result = await _petService.UploadImageToAPetByID(pet.First().Id, file);
+            Assert.IsTrue(result.StatusCode == System.Net.HttpStatusCode.OK, "", true);
         }
 
         [Test]
@@ -71,8 +84,8 @@ namespace PetStoreAPITests
             Pet pet = new Pet()
             {
                 Name = "Pedro",
-                Status = "available",              
-            };            
+                Status = "available",
+            };
             var result = await _petService.Create(pet);
             Assert.IsTrue(result.StatusCode == System.Net.HttpStatusCode.OK, "", true);
         }

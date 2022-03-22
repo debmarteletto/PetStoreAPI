@@ -11,9 +11,14 @@ namespace PetStoreAPI.Controllers
         public async Task<RestResponse> UploadImageToAPetByID(long id, byte[] file)
         {
             var client = new RestClient($"https://petstore.swagger.io");
-            var request = new RestRequest($"/v2/pet/{id}/uploadImage", Method.Post) { RequestFormat = DataFormat.Json };
-            request.AddBody(file);
-            var response = await client.PostAsync(request);
+            var request = new RestRequest($"/v2/pet/{id}/uploadImage", Method.Post) { RequestFormat = DataFormat.Json  };
+            request.AddHeader("Accept", "application/json");
+
+            request.AddParameter("application/json", request.AddBody(file), ParameterType.RequestBody);
+            request.AddHeader("Content-Type", " multipart/form-data");
+            
+            request.AddFile("file", file, "fileName");
+            var response = await client.ExecuteAsync(request);
 
             return response;
         }

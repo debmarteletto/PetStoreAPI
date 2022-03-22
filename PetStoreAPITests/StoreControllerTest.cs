@@ -22,8 +22,17 @@ namespace PetStoreAPITests
         [Test]
         public async Task GetByID_ReturnTrueIfFound()
         {
-            var result = await _storeService.GetById(2);
-            Assert.IsTrue(result.StatusCode == System.Net.HttpStatusCode.OK, "", true);
+            Store store = new Store() { PetId = 1, Quantity = 1, ShipDate = DateTime.Now, Status = "available", Complete = true };
+            var resultCreate = await _storeService.Create(store);
+            Store storeObject = JsonConvert.DeserializeObject<Store>(resultCreate.Content);
+
+            var resultGetById = await _storeService.GetById(storeObject.Id);
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(resultCreate.StatusCode == System.Net.HttpStatusCode.OK, "", true);
+                Assert.IsTrue(resultGetById.StatusCode == System.Net.HttpStatusCode.OK, "", true);
+
+            });
         }
 
         [Test]
@@ -40,11 +49,11 @@ namespace PetStoreAPITests
             var resultCreate = await _storeService.Create(store);
             Store storeObject = JsonConvert.DeserializeObject<Store>(resultCreate.Content);
 
-            var result = await _storeService.Delete(storeObject.Id);
+            var resultDelete = await _storeService.Delete(storeObject.Id);
             Assert.Multiple(() =>
             {
                 Assert.IsTrue(resultCreate.StatusCode == System.Net.HttpStatusCode.OK, "", true);
-                Assert.IsTrue(result.StatusCode == System.Net.HttpStatusCode.OK, "", true);
+                Assert.IsTrue(resultDelete.StatusCode == System.Net.HttpStatusCode.OK, "", true);
 
             });
         }
